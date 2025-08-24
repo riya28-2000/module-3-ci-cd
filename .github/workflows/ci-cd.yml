@@ -47,12 +47,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: test-results
-          path: ./artifacts
+          path: .\artifacts
 
       - name: Display test results
-        run: cat ./artifacts/test-results.txt
+        run: type .\artifacts\test-results.txt
+
+      - name: Install PM2 globally
+        run: npm install -g pm2
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Deploy application
-        run: |
-          npm install
-          pm2 restart app || pm2 start app.js --name "my-app"
+        run: pm2 restart app || pm2 start app.js --name "my-app"
+
+
