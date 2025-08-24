@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
+      - name: Run tests and create artifact
         run: |
           # Create artifacts folder if it doesn't exist
           if (!(Test-Path -Path ./artifacts)) { New-Item -ItemType Directory -Path ./artifacts }
@@ -52,13 +52,11 @@ jobs:
           path: ./artifacts
 
       - name: Display test results
-        run: type .\artifacts\test-results.txt
+        run: type ./artifacts/test-results.txt
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Deploy application
+      - name: Install dependencies and deploy
         run: |
+          npm install
           npm install -g pm2
           pm2 restart app || pm2 start app.js --name "app"
 
