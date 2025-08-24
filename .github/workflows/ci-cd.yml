@@ -1,4 +1,4 @@
-name: Node.js CI/CD Pipeline
+name:name: Node.js CI/CD Pipeline
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -16,20 +16,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
 
       - name: Run tests
         run: |
-          npm test > test-results.txt 2>&1 || true
+          # Create artifacts folder if it doesn't exist
+          if (!(Test-Path -Path ./artifacts)) { New-Item -ItemType Directory -Path ./artifacts }
+          npm test > ./artifacts/test-results.txt 2>&1 || Write-Host "Tests completed with errors"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: test-results.txt
+          path: ./artifacts/test-results.txt
 
   deploy:
     runs-on: self-hosted
@@ -41,24 +43,26 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 22
 
       - name: Download test results
         uses: actions/download-artifact@v4
         with:
           name: test-results
-          path: .\artifacts
+          path: ./artifacts
 
       - name: Display test results
         run: type .\artifacts\test-results.txt
-
-      - name: Install PM2 globally
-        run: npm install -g pm2
 
       - name: Install dependencies
         run: npm install
 
       - name: Deploy application
-        run: pm2 restart app || pm2 start app.js --name "my-app"
+        run: |
+          npm install -g pm2
+          pm2 restart app || pm2 start app.js --name "app"
+
+
+
 
 
